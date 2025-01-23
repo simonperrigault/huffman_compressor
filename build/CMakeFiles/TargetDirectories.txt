@@ -1,3 +1,0 @@
-/home/simonp/entrainement/compression/build/CMakeFiles/compressor.dir
-/home/simonp/entrainement/compression/build/CMakeFiles/edit_cache.dir
-/home/simonp/entrainement/compression/build/CMakeFiles/rebuild_cache.dir
