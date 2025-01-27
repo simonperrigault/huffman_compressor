@@ -4,13 +4,15 @@
 #include <vector>
 #include <string>
 #include <array>
+#include <sstream>
+#include <unordered_map>
 
 typedef struct Node {
-    uint8_t c;
+    char c;
     const struct Node* left;
     const struct Node* right;
 
-    Node(uint8_t p, const struct Node* l = nullptr, const struct Node* r = nullptr) {
+    Node(char p, const struct Node* l = nullptr, const struct Node* r = nullptr) {
         c = p;
         left = l;
         right = r;
@@ -22,10 +24,8 @@ void compress(const char* input_filename, const char* output_filename);
 void decompress(const char* input_filename, const char* output_filename);
 
 void encode_tree(const Node* curr, std::string& output);
-void fill_flat_tree(const Node* curr, int i, std::vector<uint8_t>& flat_tree, std::array<std::string, 256>& char_to_code, std::string&& curr_char);
+void decode_tree(std::string&& curr, std::stringstream& ss, std::unordered_map<std::string, char>& code_to_char);
 void fill_char_to_code(const Node* curr, std::array<std::string, 256>& char_to_code, std::string&& curr_char);
-int tree_depth(const Node* curr, int depth);
-void inorder_node(const Node* curr, int depth);
 
 bool compare_files(const char*, const char*);
 

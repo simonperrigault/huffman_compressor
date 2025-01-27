@@ -1,10 +1,5 @@
-#include <iostream>
 #include <fstream>
-#include <unordered_map>
 #include <queue>
-#include <math.h>
-#include <bitset>
-#include <sstream>
 
 #include "Compressor.h"
 
@@ -12,31 +7,9 @@ bool operator<(const Node l, const Node r) {
     return l.c < r.c;
 }
 
-void inorder_node(const Node* curr, int depth) {
-    if (curr == nullptr) return;
-    if (curr->right != nullptr) {
-        inorder_node(curr->right, depth+1);
-        for (int i = 0; i < depth; i++) {
-            std::cout << "  ";
-        }
-        std::cout << " /\n";
-    }
-    for (int i = 0; i < depth; i++) {
-        std::cout << "  ";
-    }
-    std::cout << curr->c << "\n";
-    if (curr->left != nullptr) {
-        for (int i = 0; i < depth; i++) {
-            std::cout << "  ";
-        }
-        std::cout << " \\\n";
-        inorder_node(curr->left, depth+1);
-    }
-}
-
 void fill_char_to_code(const Node* curr, std::array<std::string, 256>& char_to_code, std::string&& curr_char) {
     if (curr == nullptr) return;
-    char_to_code[curr->c] = curr_char;
+    char_to_code[(unsigned char)curr->c] = curr_char;
     fill_char_to_code(curr->left, char_to_code, curr_char+"0");
     fill_char_to_code(curr->right, char_to_code, curr_char+"1");
 }
@@ -58,15 +31,17 @@ void compress(const char* input_filename, const char* output_filename) {
     std::ofstream output_file(output_filename, std::ios_base::binary);
 
     char curr;
-    std::unordered_map<char, int> counter;
+    std::array<int, 256> counter;
+    counter.fill(0);
     while (input_file) {
         curr = input_file.get();
-        counter[curr]++;
+        counter[(unsigned char)curr]++;
     }
 
     std::priority_queue<std::pair<int, Node*>> heap;
-    for (std::pair<char, int> key_val : counter) {
-        heap.push({-key_val.second, new Node(key_val.first)});
+    for (int i = 0; i < 256; i++) {
+        if (counter[i] == 0) continue;
+        heap.push({-counter[i], new Node(i)});
     }
 
     while (heap.size() > 1) {
@@ -80,10 +55,6 @@ void compress(const char* input_filename, const char* output_filename) {
     std::array<std::string, 256> char_to_code;
     fill_char_to_code(heap.top().second, char_to_code, "");
 
-    for (int i = 0; i < 256; i++) {
-        std::cout << std::bitset<8>(i) << " : " << char_to_code[i] << "\n";
-    }
-
     std::string encoded_tree;
     encode_tree(heap.top().second, encoded_tree);
     uint32_t tree_size = encoded_tree.size();
@@ -92,14 +63,14 @@ void compress(const char* input_filename, const char* output_filename) {
     }
     output_file << encoded_tree;
 
-    uint8_t buffer = 0;
+    char buffer = 0;
     int i_buffer = 0;
     input_file.clear();
     input_file.seekg(0);
 
     while (input_file) {
         curr = input_file.get();
-        for (char c : char_to_code[(uint8_t)curr]) {
+        for (char c : char_to_code[(unsigned char)curr]) {
             buffer <<= 1;
             if (c == '1') {
                 buffer ^= 1;
@@ -147,10 +118,6 @@ void decompress(const char* input_filename, const char* output_filename) {
     std::unordered_map<std::string, char> code_to_char;
     std::stringstream ss(tree);
     decode_tree("", ss, code_to_char);
-
-    for (auto kv : code_to_char) {
-        std::cout << std::bitset<8>(kv.second) << " : " << kv.first << "\n";
-    }
     
     std::string buffer;
     while (input_file) {
