@@ -3,27 +3,19 @@
 
 #include "Compressor.h"
 
-bool operator<(const Node l, const Node r) {
-    return l.c < r.c;
-}
+void fill_char_to_code(std::string&& curr, std::stringstream& ss, std::array<std::string, 256>& char_to_code) {
+    if (!ss) return;
 
-void fill_char_to_code(const Node* curr, std::array<std::string, 256>& char_to_code, std::string&& curr_char) {
-    if (curr == nullptr) return;
-    char_to_code[(unsigned char)curr->c] = curr_char;
-    fill_char_to_code(curr->left, char_to_code, curr_char+"0");
-    fill_char_to_code(curr->right, char_to_code, curr_char+"1");
-}
-
-void encode_tree(const Node* curr, std::string& output) {
-    if (curr == nullptr) return;
-    if (curr->left == nullptr && curr->right == nullptr) {
-        output += '1';
-        output += curr->c;
+    char c = ss.get();
+    if (c == '1') {
+        c = ss.get();
+        char_to_code[(unsigned char)c] = curr;
         return;
     }
-    output += '0';
-    encode_tree(curr->left, output);
-    encode_tree(curr->right, output);
+    else if (c == '0') {
+        fill_char_to_code(curr+'0', ss, char_to_code);
+        fill_char_to_code(curr+'1', ss, char_to_code);
+    }
 }
 
 void compress(const char* input_filename, const char* output_filename) {
@@ -38,30 +30,31 @@ void compress(const char* input_filename, const char* output_filename) {
         counter[(unsigned char)curr]++;
     }
 
-    std::priority_queue<std::pair<int, Node*>> heap;
+    std::priority_queue<std::pair<int, std::string>> heap;
     for (int i = 0; i < 256; i++) {
         if (counter[i] == 0) continue;
-        heap.push({-counter[i], new Node(i)});
+        std::string leaf("1");
+        leaf.push_back(i);
+        heap.push({-counter[i], leaf});
     }
 
     while (heap.size() > 1) {
-        std::pair<int, Node*> temp(heap.top());
+        std::pair<int, std::string> temp(heap.top());
         heap.pop();
-        Node* next = new Node(0, temp.second, heap.top().second);
-        heap.push({temp.first+heap.top().first, next});
+        heap.push({temp.first+heap.top().first, "0"+temp.second+heap.top().second});
         heap.pop();
     }
 
-    std::array<std::string, 256> char_to_code;
-    fill_char_to_code(heap.top().second, char_to_code, "");
-
-    std::string encoded_tree;
-    encode_tree(heap.top().second, encoded_tree);
+    std::string encoded_tree(std::move(heap.top().second));
     uint32_t tree_size = encoded_tree.size();
     for (int i = 0; i < 4; i++) {
         output_file.put((tree_size >> (3-i)*8) & 0xFF);
     }
     output_file << encoded_tree;
+
+    std::array<std::string, 256> char_to_code;
+    std::stringstream ss(encoded_tree);
+    fill_char_to_code("", ss, char_to_code);
 
     char buffer = 0;
     int i_buffer = 0;
