@@ -1,12 +1,12 @@
 # Huffman Compressor and Decompressor
 
-Simple implementation of Huffman compressor and decompressor in C++. Tested on text filess only. 
+Simple implementation of Huffman compressor and decompressor in C++. Tested on text files only. 
 
 ## How to use
 
 Compile with CMake
 
-To compress/decompress a file, run :
+To compress/decompress a file, run :  
 ```build/compressor compress|decompress <input_file> <output_file>```
 
 To compare 2 files, run :  
