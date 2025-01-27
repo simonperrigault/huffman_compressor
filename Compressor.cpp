@@ -23,14 +23,14 @@ void compress(const char* input_filename, const char* output_filename) {
     std::ofstream output_file(output_filename, std::ios_base::binary);
 
     char curr;
-    std::array<int, 256> counter;
+    std::array<long long, 256> counter;
     counter.fill(0);
     while (input_file) {
         curr = input_file.get();
         counter[(unsigned char)curr]++;
     }
 
-    std::priority_queue<std::pair<int, std::string>> heap;
+    std::priority_queue<std::pair<long long, std::string>> heap;
     for (int i = 0; i < 256; i++) {
         if (counter[i] == 0) continue;
         std::string leaf("1");
@@ -103,7 +103,7 @@ void decompress(const char* input_filename, const char* output_filename) {
     for (int i = 0; i < 4; i++) {
         curr = input_file.get();
         tree_size <<= 8;
-        tree_size ^= curr;
+        tree_size ^= (curr & 0xFF);
     }
 
     std::string tree(tree_size, '\0');
