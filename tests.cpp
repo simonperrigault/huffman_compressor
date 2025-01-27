@@ -2,15 +2,15 @@
 #include "Compressor.h"
 
 TEST_CASE("Compare 2 files") {
-    REQUIRE(compare_files("data/mini_text.txt", "data/mini_text.txt") == true);
-    REQUIRE(compare_files("data/mini_text.txt", "data/text.txt") == false);
+    REQUIRE(compare_files("test/mini_text.txt", "test/mini_text.txt") == true);
+    REQUIRE(compare_files("test/mini_text.txt", "test/text.txt") == false);
 }
 
 TEST_CASE("Compress and decompress") {
-    compress("data/mini_text.txt", "data/mini_text.zip");
-    decompress("data/mini_text.zip", "data/mini_text_dezip.txt");
-    REQUIRE(compare_files("data/mini_text.txt", "data/mini_text_dezip.txt") == true);
-    compress("data/text.txt", "data/text.zip");
-    decompress("data/text.zip", "data/text_dezip.txt");
-    REQUIRE(compare_files("data/text.txt", "data/text_dezip.txt") == true);
+    compress("test/mini_text.txt", "test/mini_text.zip");
+    decompress("test/mini_text.zip", "test/mini_text_dezip.txt");
+    REQUIRE(compare_files("test/mini_text.txt", "test/mini_text_dezip.txt") == true);
+    compress("test/text.txt", "test/text.zip");
+    decompress("test/text.zip", "test/text_dezip.txt");
+    REQUIRE(compare_files("test/text.txt", "test/text_dezip.txt") == true);
 }
