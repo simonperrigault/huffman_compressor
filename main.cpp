@@ -16,4 +16,12 @@ int main(int argc, char* argv[]) {
     else if (!strcmp(argv[1], "decompress")) {
         decompress(argv[2], argv[3]);
     }
+    else if (!strcmp(argv[1], "compare")) {
+        if (compare_files(argv[2], argv[3])) {
+            std::cout << "The files are the same\n";
+        }
+        else {
+            std::cout << "The files are differents\n";
+        }
+    }
 }

@@ -27,4 +27,6 @@ void fill_char_to_code(const Node* curr, std::array<std::string, 256>& char_to_c
 int tree_depth(const Node* curr, int depth);
 void inorder_node(const Node* curr, int depth);
 
+bool compare_files(const char*, const char*);
+
 #endif

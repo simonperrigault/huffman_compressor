@@ -34,19 +34,6 @@ void inorder_node(const Node* curr, int depth) {
     }
 }
 
-int tree_depth(const Node* curr, int depth) {
-    if (curr == nullptr) return depth-1;
-    return std::max(tree_depth(curr->left, depth+1), tree_depth(curr->right, depth+1));
-}
-
-void fill_flat_tree(const Node* curr, int i, std::vector<uint8_t>& flat_tree, std::array<std::string, 256>& char_to_code, std::string&& curr_char) {
-    if (curr == nullptr) return;
-    flat_tree[i] = curr->c;
-    char_to_code[curr->c] = curr_char;
-    std::cout << i <<"\n";
-    fill_flat_tree(curr->left, 2*i+1, flat_tree, char_to_code, curr_char+"0");
-    fill_flat_tree(curr->right, 2*i+2, flat_tree, char_to_code, curr_char+"1");
-}
 void fill_char_to_code(const Node* curr, std::array<std::string, 256>& char_to_code, std::string&& curr_char) {
     if (curr == nullptr) return;
     char_to_code[curr->c] = curr_char;
@@ -171,13 +158,27 @@ void decompress(const char* input_filename, const char* output_filename) {
         for (int i = 7; i >= 0; i--) {
             buffer += '0' + (curr >> i & 1);
             if (code_to_char.count(buffer)) {
-                output_file << code_to_char[buffer];
                 if (code_to_char[buffer] == EOF) {
                     input_file.setstate(std::ios_base::eofbit);
                     break;
                 }
-                buffer.clear();
+                else {
+                    output_file << code_to_char[buffer];
+                    buffer.clear();
+                }
             }
         }
     }
+}
+
+bool compare_files(const char* filename1, const char* filename2) {
+    char c1, c2;
+    std::ifstream file1(filename1, std::ios_base::binary), file2(filename2, std::ios_base::binary);
+    while (file1 && file2) {
+        c1 = file1.get();
+        c2 = file2.get();
+        if (c1 != c2) return false;
+    }
+    if (file1 || file2) return false;
+    return true;
 }
